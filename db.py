@@ -1,9 +1,26 @@
+from sqlalchemy import create_engine
 import psycopg2
+import pandas as pd
+import numpy as np
+import datetime
+import json
+import random
+import cPickle as pickle
+from predict import PredictFraud
+from pandas.io import sql
+pd.set_option('display.max_columns', None)
 
 
-def create_tables(cur):
+try:
+    conn = psycopg2.connect(
+        "dbname='fraud_prediction' user='aymericflaisler' host='localhost' password='1323'")
+except:
+    print "I am unable to connect to the database"
+
+
+def create_table(cur):
     cur.execute(
-        '''CREATE TABLE fraud_prediction (
+        '''CREATE TABLE fraud (
             id serial PRIMARY KEY,
             approx_payout_date integer,
             body_length integer,
@@ -50,17 +67,45 @@ def create_tables(cur):
             previous_payouts text,
             fraud_probability double precision);
         ''')
+    conn.commit()
+    conn.close()
 
-    cur.execute(
-        '''CREATE TABLE wordlist (
-            id integer PRIMARY KEY,
-            word text);
-        ''')
 
+def create_test_table(cur):
     cur.execute(
-        '''CREATE TABLE wordlocation (
-            id integer PRIMARY KEY,
-            url_id integer,
-            word_id integer,
-            location integer);
+        '''CREATE TABLE test (
+            id serial PRIMARY KEY,
+            index
+            approx_payout_date integer,
+            body_length integer,
+            channels integer,
+            country text,
+            currency text);
         ''')
+    conn.commit()
+    conn.close()
+
+
+def test_fill():
+                id serial PRIMARY KEY,
+                ['approx_payout_date',
+                'body_length',
+                'channels',
+                'country',
+                'currency']
+    df=pd.DataFrame([[1,2,3,'bla','bla']],columns=['approx_payout_date','body_length','channels','country','currency'])
+
+    # cur.execute('''INSERT INTO test VALUES (%d, %d, %d, %d, %d);'''
+    #             % (wordlocation_id, url_id, word_id, location_id))
+    # sql.execute('INSERT INTO test VALUES(?, ?, ?,?,?)', engine, params=[('id', 1, 12.2, True)])
+    df.to_sql('fraud', engine, if_exists='append', index=0)
+
+
+if __name__ == '__main__':
+    conn = psycopg2.connect(
+        "dbname='fraud_prediction' user='aymericflaisler' host='localhost' password='1323'")
+    cur = conn.cursor()
+    create_table(cur)
+    # create_test_table(cur)
+    engine = create_engine('postgresql://aymericflaisler@localhost:5432/fraud_prediction')
+    df

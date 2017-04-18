@@ -31,6 +31,7 @@ class PredictFraud(object):
         df_['previous_payouts'] = str(d['previous_payouts'])
         df = df.append(df_)
         df.reset_index(drop=1, inplace=1)
+        df.fillna(0, inplace=1)
         self.example = df
         return df
 
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     # RFmodel().prepare_data(test)
     mdPred = PredictFraud(
         model_path, example_path)
-    # mdPred.read_entry()
+    df = mdPred.read_entry()
     X_prep = mdPred.fit()
     np.shape(X_prep)
     model = pickle.load(open(model_path, 'rb'))

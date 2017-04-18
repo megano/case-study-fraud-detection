@@ -126,7 +126,7 @@ class RFmodel(object):
 if __name__ == '__main__':
     model = RFmodel()
     # Fit the data
-    model.fit('./data/data.json', gridsearch=1)
+    model.fit('./data/data.json', gridsearch=0)
 
     # Save model using cPickle
     pickle.dump(model.best_est, open('./data/model.pkl', 'wb'))
@@ -136,7 +136,11 @@ if __name__ == '__main__':
 
     md = pickle.load(open('./data/model.pkl', 'rb'))
 
-    # md.predict_proba(model.X[:200, :].reshape(200, 13))
+    md.predict(model.X[:200, :].reshape(200, 13))
+    md.predict_proba(model.X[:200, :].reshape(200, 13))
+    #
+    # pd.DataFrame(md.predict(model.X)).to_clipboard()
+    # pd.DataFrame(md.predict_proba(model.X)).to_clipboard()
     # Overall model scores:
     #  F1 score: 0.87, Precision: 0.96, Recall: 0.79, Accuracy: 0.98
     # (0.86963906581740968,
