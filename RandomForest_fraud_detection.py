@@ -91,14 +91,14 @@ class RFmodel(object):
         plt.show()
         pass
 
-    def fit(self, filename, gridsearch == False):
+    def fit(self, filename, gridsearch=False):
         self.load_data(filename)
         X, y = self.prepare_data(self.df, y_name='fraud')
         # grid search RF
         params_rf = {'n_estimators': [50, 100, 250], 'max_depth': [
             1, 2, 5], 'min_samples_split': [2, 4]}
         # conditional gridsearch
-        if gs == True:
+        if gridsearch == True:
             self.grid_search(RF(), params_rf, X, y)
         else:
             self.best_est = RF().fit(X, y)
@@ -111,9 +111,12 @@ class RFmodel(object):
 
 
 if __name__ == '__main__':
-    md = RFmodel()
-    # fit the data
-    md.fit('data.json', gridsearch=False)
+    model = RFmodel()
+    # Fit the data
+    model.fit('data.json', gridsearch=False)
+    # Save model using cPickle
+    with open('./data/model.pkl', 'w') as f:
+        pickle.dump(model, f)
 
     # Make predictions
     # md.best_est.predict_proba(md.X[:200,:].reshape(200,13))
