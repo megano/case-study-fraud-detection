@@ -36,15 +36,19 @@ class RFmodel(object):
         df['missing_payment'] = (1 - df.ach - df.check)
         df['dict_elements'] = df.previous_payouts.map(lambda x: len(x))
         df.reset_index(drop=1, inplace=1)
-        col_to_keep = ['fraud', 'eur', 'gbp', 'ach', 'check', 'missing_payment', 'dict_elements', 'gts',
-                       'has_logo', 'user_type', 'delivery_method', 'org_facebook', 'org_twitter', 'has_analytics']
-        df_ = df.loc[:, col_to_keep]
         if y_name:
+            col_to_keep = ['fraud', 'eur', 'gbp', 'ach', 'check', 'missing_payment', 'dict_elements', 'gts',
+                           'has_logo', 'user_type', 'delivery_method', 'org_facebook', 'org_twitter', 'has_analytics']
+            df_ = df.loc[:, col_to_keep]
             y = df_.pop(y_name).values
             X = df_.values
             self.X, self.y = X, y
             return X, y
         else:
+            col_to_keep = ['eur', 'gbp', 'ach', 'check', 'missing_payment', 'dict_elements', 'gts',
+                           'has_logo', 'user_type', 'delivery_method', 'org_facebook', 'org_twitter', 'has_analytics']
+            df_ = df.loc[:, col_to_keep]
+            df_.reset_index(drop=1)
             X = df_.values
             self.X = X
             return X
@@ -102,8 +106,10 @@ class RFmodel(object):
         self.load_data(filepath)
         X, y = self.prepare_data(self.df, y_name='fraud')
         # grid search RF
-        params_rf = {'n_estimators': [50, 100, 250], 'max_depth': [
-            1, 2, 5], 'min_samples_split': [2, 4]}
+        params_rf = {'n_jobs': [-1], 'n_estimators': [50, 100, 250], 'max_depth': [
+            1, 2, 5], 'min_samples_split': [2, 4], 'random_state': [50]}
+        # "criterion": ["gini", "entropy"],
+        # 'sample_leaf_options': [1, 5, 10, 50],
         # conditional gridsearch
         if gridsearch == True:
             self.grid_search(RF(), params_rf, X, y)
@@ -120,14 +126,17 @@ class RFmodel(object):
 if __name__ == '__main__':
     model = RFmodel()
     # Fit the data
-    model.fit('./data/data.json', gridsearch=0)
+    model.fit('./data/data.json', gridsearch=1)
+
     # Save model using cPickle
-    with open('./data/model.pkl', 'w') as f:
-        pickle.dump(model, f)
+    pickle.dump(model.best_est, open('./data/model.pkl', 'wb'))
 
     # Make predictions
-    # md.best_est.predict_proba(md.X[:200,:].reshape(200,13))
+    # model.best_est.predict_proba(model.X[:200, :].reshape(200, 13))
 
+    md = pickle.load(open('./data/model.pkl', 'rb'))
+
+    # md.predict_proba(model.X[:200, :].reshape(200, 13))
     # Overall model scores:
     #  F1 score: 0.87, Precision: 0.96, Recall: 0.79, Accuracy: 0.98
     # (0.86963906581740968,

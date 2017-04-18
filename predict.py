@@ -34,19 +34,15 @@ class PredictFraud(object):
         self.example = df
         return df
 
-    def load_model(self):
+    def fit(self):
         '''
         Load model with cPickle
         '''
-        with open(self.model_path) as f:
-            model = pickle.load(f)
-        self.model = model
-
-    def fit(self):
         self.read_entry()
-        self.load_model()
-        self.X_prep = RFmodel().prepare_data(self.example)
-        return self.X_prep
+
+        X_prep = RFmodel().prepare_data(self.example)
+        # print model.predict(X_prep)
+        return X_prep
 
     def predict(self):
         return self.model.predict_proba(self.X_prep)
@@ -55,8 +51,13 @@ class PredictFraud(object):
 if __name__ == '__main__':
     example_path = './data/test_script_example.json'
     model_path = './data/model.pkl'
-    mdPred.read_entry().columns
+    # test = mdPred.read_entry()
+    # RFmodel().prepare_data(test)
     mdPred = PredictFraud(
         model_path, example_path)
+    mdPred.read_entry()
     X_prep = mdPred.fit()
+    np.shape(X_prep)
+    model = pickle.load(open(model_path, 'rb'))
+    model.predict(X_prep)
     y_pred = mdPred.predict()
