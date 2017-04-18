@@ -85,7 +85,15 @@ def make_prediction():
     df = Pred.read_entry()
     df['fraud_probability'] = y_pred
     insert_db(df, engine, table='fraud')
-    return X_prep, y_pred
+    # If prediction < 0.17: low
+    # If prediction < 0.50: medium
+    if y_pred > .5:
+        risk_band = "High"
+    elif (y_pred > .17) and (y_pred < .5):
+        risk_band = "Medium"
+    else:
+        risk_band = "Low"
+    return df, X_prep, y_pred, risk_band
 
 # Flask can respond differently to various HTTP methods
 # By default only GET allowed, but you can change that using the methods
@@ -104,8 +112,10 @@ def index():
         # response = urllib2.urlopen(
         #     'http://galvanize-case-study-on-fraud.herokuapp.com/data_point')
         # raw_json = json.load(response)
-        X, y = make_prediction()
-        return str(X) + " prediction: " + str(y)
+        df, X, y, risk_band = make_prediction()
+        return "Event Name: " + df.name.to_string(index=0) + "<br>" + "Venue Name: " + \
+            df.venue_name.to_string(index=0) + "<br>" + " Prediction: " + \
+            str(y) + "<br>" + "Risk band: " + risk_band
 
 
 if __name__ == "__main__":
