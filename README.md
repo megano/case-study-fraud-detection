@@ -1,5 +1,7 @@
 # Case Study Fraud Detection
 
+### Authors: Karey, Megano, Nick, Aymeric
+
 # Planned Scope
 Challenge: The company needs to flag potential new fraud for further review
 as it comes in so it can be triaged by most pressing (and costly) transactions.
@@ -65,6 +67,31 @@ We plan to deploy the model via AWS and a web app front end.
 
 # Comparing models #
 We plan to use cross validation to compare models.
+
+# Appendix #
+
+## EXAMPLE USAGE
+### From bash:
+
+```bash
+$ python predict.py example.json
+```
+
+This will give you a prediction of a json object respecting the following schema:
+['fraud', 'eur', 'gbp', 'ach', 'check', 'missing_payment', 'dict_elements', 'gts',
+'has_logo', 'user_type', 'delivery_method', 'org_facebook', 'org_twitter', 'has_analytics']
+
+The data is 14,337 events from 2007-2013, of which 1,239 are fraudulent.  (We define events as fraudulent if the account type is labeled as fraudster, fraudulent_event, or fraudster_att.  We don’t classify spamming events as fraudulent.)
+
+## Overall model scores:
+F1 score: 0.87, Precision: 0.96, Recall: 0.79, Accuracy: 0.98
+(0.86963906581740968,
+ 0.96421845574387943,
+ 0.79195668986852286,
+ 0.97858687312547954)
+
+## ROC curve
+![image](data/17Apr17_1921.png)
 
 # Data Sci Best Practices for our Team #
 Code hygiene: Write clean and modular code with proper functions/encapsulation
