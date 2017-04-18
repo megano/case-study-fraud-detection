@@ -88,6 +88,8 @@ class RFmodel(object):
         plt.ylabel('TPR')
         plt.title('ROC Curve')
         plt.legend()
+        dt_ = datetime.datetime.now().strftime('%d%b%y_%H%M')
+        plt.savefig("./data/" + dt_ + ".png")
         plt.show()
         pass
 
@@ -113,7 +115,7 @@ class RFmodel(object):
 if __name__ == '__main__':
     model = RFmodel()
     # Fit the data
-    model.fit('./data/data.json', gridsearch=False)
+    model.fit('./data/data.json', gridsearch=True)
     # Save model using cPickle
     with open('./data/model.pkl', 'w') as f:
         pickle.dump(model, f)
