@@ -1,3 +1,4 @@
+from flask import Flask, request
 from sqlalchemy import create_engine
 import psycopg2
 import pandas as pd
@@ -8,7 +9,9 @@ import random
 import cPickle as pickle
 from predict import PredictFraud
 from pandas.io import sql
-pd.set_option('display.max_columns', None)
+import urllib2
+# pd.set_option('display.max_columns', None)
+app = Flask(__name__)
 
 
 def create_table(cur):
@@ -64,24 +67,46 @@ def create_table(cur):
     conn.close()
 
 
-def insert_db(df, table='fraud'):
+def insert_db(df, engine, table='fraud'):
     df.to_sql(table, engine, if_exists='append', index=0)
 
 
-if __name__ == '__main__':
-    # conn = psycopg2.connect(
-    #     "dbname='fraud_prediction' user='aymericflaisler' host='localhost' password='1323'")
-    # cur = conn.cursor()
-    # create_table(cur)
+def make_prediction():
     engine = create_engine(
         'postgresql://aymericflaisler@localhost:5432/fraud_prediction')
     # do the prediction
     example_path = './data/test_script_example.json'
     model_path = './data/model.pkl'
-    PredictFraud.mdPred = PredictFraud(
-        model_path, example_path)
-    X_prep = PredictFraud.mdPred.fit()
+    Pred = PredictFraud(
+        model_path, 'http://galvanize-case-study-on-fraud.herokuapp.com/data_point', is_json=1)
+    X_prep = Pred.fit()
     model = pickle.load(open(model_path, 'rb'))
-    model.predict_proba(X_prep)[0, 1]
-    df = PredictFraud.mdPred.read_entry()
-    df['fraud_probability'] = model.predict_proba(X_prep)[0, 1]
+    y_pred = model.predict_proba(X_prep)[0, 1]
+    df = Pred.read_entry()
+    df['fraud_probability'] = y_pred
+    insert_db(df, engine, table='fraud')
+    return X_prep, y_pred
+
+# Flask can respond differently to various HTTP methods
+# By default only GET allowed, but you can change that using the methods
+# argument
+
+
+@app.route("/", methods=['GET', 'POST'])
+def index():
+    if request.method == "POST":
+        # json_dict = request.get_json()
+        # description = json_dict['description']
+        # json.load(open(example_path))['description']
+        # data = {'description': description}
+        return "nothing here..."
+    else:
+        # response = urllib2.urlopen(
+        #     'http://galvanize-case-study-on-fraud.herokuapp.com/data_point')
+        # raw_json = json.load(response)
+        X, y = make_prediction()
+        return str(X) + " prediction: " + str(y)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

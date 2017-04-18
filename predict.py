@@ -5,6 +5,7 @@ import json
 import random
 import cPickle as pickle
 from RandomForest_fraud_detection import RFmodel
+import urllib2
 pd.set_option('display.max_columns', None)
 
 
@@ -14,16 +15,21 @@ class PredictFraud(object):
     label, and outputs the label probability
     '''
 
-    def __init__(self, model_path, example_path):
+    def __init__(self, model_path, example_path, is_json=0):
         self.model_path = model_path
         self.example_path = example_path
+        self.is_json = is_json
 
     def read_entry(self):
         '''
         Read single entry from http://galvanize-case-study-on-fraud.herokuapp.com/data_point
         '''
-        with open(self.example_path) as data_file:
-            d = json.load(data_file)
+        if self.is_json != 0:
+            response = urllib2.urlopen(self.example_path)
+            d = json.load(response)
+        else:
+            with open(self.example_path) as data_file:
+                d = json.load(data_file)
         df = pd.DataFrame()
         df_ = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in d.iteritems() if (
             k != 'ticket_types') and (k != 'previous_payouts')]))
@@ -51,6 +57,7 @@ class PredictFraud(object):
 
 if __name__ == '__main__':
     example_path = './data/test_script_example.json'
+
     model_path = './data/model.pkl'
     # test = mdPred.read_entry()
     # RFmodel().prepare_data(test)
