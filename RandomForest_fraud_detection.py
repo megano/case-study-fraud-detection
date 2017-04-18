@@ -13,11 +13,11 @@ import cPickle as pickle
 
 
 class RFmodel(object):
-    def load_data(self, filename):
+    def load_data(self, filepath):
         '''
         Load data from json file located in the data folder
         '''
-        with open('./data/' + filename) as data_file:
+        with open(filepath) as data_file:
             data = json.load(data_file)
         df = pd.DataFrame.from_dict(data)
         df['fraud'] = df.acct_type.map(lambda x: 1 if ((x == 'fraudster') | (
@@ -91,8 +91,8 @@ class RFmodel(object):
         plt.show()
         pass
 
-    def fit(self, filename, gridsearch=False):
-        self.load_data(filename)
+    def fit(self, filepath, gridsearch=False):
+        self.load_data(filepath)
         X, y = self.prepare_data(self.df, y_name='fraud')
         # grid search RF
         params_rf = {'n_estimators': [50, 100, 250], 'max_depth': [
@@ -113,7 +113,7 @@ class RFmodel(object):
 if __name__ == '__main__':
     model = RFmodel()
     # Fit the data
-    model.fit('data.json', gridsearch=False)
+    model.fit('./data/data.json', gridsearch=False)
     # Save model using cPickle
     with open('./data/model.pkl', 'w') as f:
         pickle.dump(model, f)
