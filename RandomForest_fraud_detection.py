@@ -24,7 +24,7 @@ class RFmodel(object):
             x == 'fraudster_att') | (x == 'fraudster_event')) else 0)
         self.df = df.fillna(0)
 
-    def prepare_data(self, df, y_name='fraud'):
+    def prepare_data(self, df, y_name=False):
         '''
         Take the dataframe with all data (X and y) and create additional dummy features
         from categorical data
@@ -39,10 +39,15 @@ class RFmodel(object):
         col_to_keep = ['fraud', 'eur', 'gbp', 'ach', 'check', 'missing_payment', 'dict_elements', 'gts',
                        'has_logo', 'user_type', 'delivery_method', 'org_facebook', 'org_twitter', 'has_analytics']
         df_ = df.loc[:, col_to_keep]
-        y = df_.pop(y_name).values
-        X = df_.values
-        self.X, self.y = X, y
-        return X, y
+        if y_name:
+            y = df_.pop(y_name).values
+            X = df_.values
+            self.X, self.y = X, y
+            return X, y
+        else:
+            X = df_.values
+            self.X = X
+            return X
 
     def grid_search(self, model_type, params, X, y):
         '''
@@ -115,7 +120,7 @@ class RFmodel(object):
 if __name__ == '__main__':
     model = RFmodel()
     # Fit the data
-    model.fit('./data/data.json', gridsearch=True)
+    model.fit('./data/data.json', gridsearch=0)
     # Save model using cPickle
     with open('./data/model.pkl', 'w') as f:
         pickle.dump(model, f)

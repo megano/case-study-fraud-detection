@@ -4,6 +4,7 @@ import datetime
 import json
 import random
 import cPickle as pickle
+from RandomForest_fraud_detection import RFmodel
 pd.set_option('display.max_columns', None)
 
 
@@ -13,35 +14,49 @@ class PredictFraud(object):
     label, and outputs the label probability
     '''
 
-    def read_entry(self, json_path):
+    def __init__(self, model_path, example_path):
+        self.model_path = model_path
+        self.example_path = example_path
+
+    def read_entry(self):
         '''
         Read single entry from http://galvanize-case-study-on-fraud.herokuapp.com/data_point
         '''
-        with open(json_path) as data_file:
+        with open(self.example_path) as data_file:
             d = json.load(data_file)
         df = pd.DataFrame()
-        for k, v in d.iteritems():
-            df_ = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in d.iteritems() if (
-                k != 'ticket_types') and (k != 'previous_payouts')]))
-            df_['ticket_types'] = str(d['ticket_types'])
-            df_['previous_payouts'] = str(d['previous_payouts'])
-            df = df.append(df_)
-            df.reset_index(drop=1, inplace=1)
+        df_ = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in d.iteritems() if (
+            k != 'ticket_types') and (k != 'previous_payouts')]))
+        df_['ticket_types'] = str(d['ticket_types'])
+        df_['previous_payouts'] = str(d['previous_payouts'])
+        df = df.append(df_)
+        df.reset_index(drop=1, inplace=1)
+        self.example = df
         return df
 
     def load_model(self):
         '''
         Load model with cPickle
         '''
-        with open('model.pkl') as f:
+        with open(self.model_path) as f:
             model = pickle.load(f)
         self.model = model
 
-    def predict(self, X):
-        return self.model.predict_proba(X)
+    def fit(self):
+        self.read_entry()
+        self.load_model()
+        self.X_prep = RFmodel().prepare_data(self.example)
+        return self.X_prep
+
+    def predict(self):
+        return self.model.predict_proba(self.X_prep)
 
 
 if __name__ == '__main__':
     example_path = './data/test_script_example.json'
-    PredictFraud().read_entry(json_path)
     model_path = './data/model.pkl'
+    mdPred.read_entry().columns
+    mdPred = PredictFraud(
+        model_path, example_path)
+    X_prep = mdPred.fit()
+    y_pred = mdPred.predict()
