@@ -11,13 +11,6 @@ from pandas.io import sql
 pd.set_option('display.max_columns', None)
 
 
-try:
-    conn = psycopg2.connect(
-        "dbname='fraud_prediction' user='aymericflaisler' host='localhost' password='1323'")
-except:
-    print "I am unable to connect to the database"
-
-
 def create_table(cur):
     cur.execute(
         '''CREATE TABLE fraud (
@@ -71,34 +64,8 @@ def create_table(cur):
     conn.close()
 
 
-def create_test_table(cur):
-    cur.execute(
-        '''CREATE TABLE test (
-            id serial PRIMARY KEY,
-            index
-            approx_payout_date integer,
-            body_length integer,
-            channels integer,
-            country text,
-            currency text);
-        ''')
-    conn.commit()
-    conn.close()
-
-
-def test_fill():
-                id serial PRIMARY KEY,
-                ['approx_payout_date',
-                'body_length',
-                'channels',
-                'country',
-                'currency']
-    df=pd.DataFrame([[1,2,3,'bla','bla']],columns=['approx_payout_date','body_length','channels','country','currency'])
-
-    # cur.execute('''INSERT INTO test VALUES (%d, %d, %d, %d, %d);'''
-    #             % (wordlocation_id, url_id, word_id, location_id))
-    # sql.execute('INSERT INTO test VALUES(?, ?, ?,?,?)', engine, params=[('id', 1, 12.2, True)])
-    df.to_sql('fraud', engine, if_exists='append', index=0)
+def insert_db(df, table='fraud'):
+    df.to_sql(table, engine, if_exists='append', index=0)
 
 
 if __name__ == '__main__':
@@ -106,6 +73,15 @@ if __name__ == '__main__':
         "dbname='fraud_prediction' user='aymericflaisler' host='localhost' password='1323'")
     cur = conn.cursor()
     create_table(cur)
-    # create_test_table(cur)
-    engine = create_engine('postgresql://aymericflaisler@localhost:5432/fraud_prediction')
-    df
+    engine = create_engine(
+        'postgresql://aymericflaisler@localhost:5432/fraud_prediction')
+    # do the prediction
+    example_path = './data/test_script_example.json'
+    model_path = './data/model.pkl'
+    PredictFraud.mdPred = PredictFraud(
+        model_path, example_path)
+    X_prep = PredictFraud.mdPred.fit()
+    model = pickle.load(open(model_path, 'rb'))
+    model.predict_proba(X_prep)[0, 1]
+    df = PredictFraud.mdPred.read_entry()
+    df['fraud_probability'] = model.predict_proba(X_prep)[0, 1]
