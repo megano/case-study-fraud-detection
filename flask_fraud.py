@@ -73,7 +73,7 @@ def insert_db(df, engine, table='fraud'):
 
 def make_prediction():
     engine = create_engine(
-        'postgresql://aymericflaisler@localhost:5432/fraud_prediction')
+        'postgresql://aymericflaisler:1323@localhost:5432/fraud_prediction')
     # do the prediction
     example_path = './data/test_script_example.json'
     model_path = './data/model.pkl'
@@ -103,11 +103,11 @@ def make_prediction():
 @app.route("/", methods=['GET', 'POST'])
 def index():
     if request.method == "POST":
-        # json_dict = request.get_json()
-        # description = json_dict['description']
+        json_dict = request.get_json()
+        description = json_dict['description']
         # json.load(open(example_path))['description']
-        # data = {'description': description}
-        return "nothing here..."
+        data = {'description': description}
+        return "from json: "+str(data)
     else:
         # response = urllib2.urlopen(
         #     'http://galvanize-case-study-on-fraud.herokuapp.com/data_point')
@@ -118,4 +118,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
