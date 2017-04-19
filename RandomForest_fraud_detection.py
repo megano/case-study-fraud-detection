@@ -3,7 +3,7 @@ from sklearn.ensemble import GradientBoostingClassifier as GDBC
 from sklearn.ensemble import AdaBoostClassifier as ADR
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import make_scorer, accuracy_score, recall_score, f1_score, precision_score, roc_curve
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import datetime
@@ -116,7 +116,7 @@ class RFmodel(object):
         else:
             self.best_est = RF().fit(X, y)
         self.scores_for_best_model(self.best_est, X, y)
-        self.plot_roc_curve(self.best_est, X, y)
+        #self.plot_roc_curve(self.best_est, X, y)
 
     def predict(self, X_):
         model = self.best_est
