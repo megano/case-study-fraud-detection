@@ -69,12 +69,11 @@ def insert_db(df, table='fraud'):
 
 
 if __name__ == '__main__':
-    # conn = psycopg2.connect(
-    #     "dbname='fraud_prediction' user='aymericflaisler' host='localhost' password='1323'")
+    # conn = psycopg2.connect("dbname='fraud_prediction' user='aymericflaisler' host='localhost' password='1323'")
     # cur = conn.cursor()
     # create_table(cur)
     engine = create_engine(
-        'postgresql://aymericflaisler@localhost:5432/fraud_prediction')
+        'postgresql://aymericflaisler:1323@localhost:5432/fraud_prediction')
     # do the prediction
     example_path = './data/test_script_example.json'
     model_path = './data/model.pkl'

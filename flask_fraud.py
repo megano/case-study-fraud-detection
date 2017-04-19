@@ -113,8 +113,7 @@ def index():
         #     'http://galvanize-case-study-on-fraud.herokuapp.com/data_point')
         # raw_json = json.load(response)
         df, X, y, risk_band = make_prediction()
-        return "Event Name: " + df.name.to_string(index=0) + "<br>" + "Venue Name: " + \
-            df.venue_name.to_string(index=0) + "<br>" + " Prediction: " + \
+        return "Event Name: " + df.name.to_string(index=0) + "<br>" + "Venue Name: " + df.venue_name.to_string(index=0) + "<br>" + " Prediction: " + \
             str(y) + "<br>" + "Risk band: " + risk_band
 
 
