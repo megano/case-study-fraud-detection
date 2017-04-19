@@ -71,18 +71,28 @@ def insert_db(df, engine, table='fraud'):
     df.to_sql(table, engine, if_exists='append', index=0)
 
 
-def make_prediction():
+def format_data(data_source='url', data=None):
+    example_path = './data/test_script_example.json'
+    url_path = 'http://galvanize-case-study-on-fraud.herokuapp.com/data_point'
+    model_path = './data/model.pkl'
+    Pred = PredictFraud(
+        model_path, example_path, url_path, data_source)
+    X_prep = Pred.fit()
+    # have to create a read fct outside
+    df = Pred.read_entry()
+    return df, X_prep
+
+
+def make_prediction(df, X_prep):
+    '''
+    Make a prediction and save it in the psql db
+    '''
     engine = create_engine(
         'postgresql://aymericflaisler:1323@localhost:5432/fraud_prediction')
     # do the prediction
-    example_path = './data/test_script_example.json'
     model_path = './data/model.pkl'
-    Pred = PredictFraud(
-        model_path, 'http://galvanize-case-study-on-fraud.herokuapp.com/data_point', is_json=1)
-    X_prep = Pred.fit()
     model = pickle.load(open(model_path, 'rb'))
     y_pred = model.predict_proba(X_prep)[0, 1]
-    df = Pred.read_entry()
     df['fraud_probability'] = y_pred
     insert_db(df, engine, table='fraud')
     # If prediction < 0.17: low
@@ -107,12 +117,13 @@ def index():
         description = json_dict['description']
         # json.load(open(example_path))['description']
         data = {'description': description}
-        return "from json: "+str(data)
+        return "from json: " + str(data)
     else:
         # response = urllib2.urlopen(
         #     'http://galvanize-case-study-on-fraud.herokuapp.com/data_point')
         # raw_json = json.load(response)
-        df, X, y, risk_band = make_prediction()
+        df, X_prep = format_data(data_source='url')
+        df, X, y, risk_band = make_prediction(df, X_prep)
         return "Event Name: " + df.name.to_string(index=0) + "<br>" + "Venue Name: " + df.venue_name.to_string(index=0) + "<br>" + " Prediction: " + \
             str(y) + "<br>" + "Risk band: " + risk_band
 

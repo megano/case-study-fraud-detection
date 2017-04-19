@@ -15,18 +15,22 @@ class PredictFraud(object):
     label, and outputs the label probability
     '''
 
-    def __init__(self, model_path, example_path, is_json=0):
+    # data_source=["local", "url", 'post']
+    def __init__(self, model_path, example_path, url_path, data_source='local'):
         self.model_path = model_path
         self.example_path = example_path
-        self.is_json = is_json
+        self.url_path = url_path
+        self.data_source = data_source
 
     def read_entry(self):
         '''
         Read single entry from http://galvanize-case-study-on-fraud.herokuapp.com/data_point
         '''
-        if self.is_json != 0:
-            response = urllib2.urlopen(self.example_path)
+        if self.data_source == 'url':
+            response = urllib2.urlopen(self.url_path)
             d = json.load(response)
+        # elif self.data_source == 'post':
+        #     d = data
         else:
             with open(self.example_path) as data_file:
                 d = json.load(data_file)
@@ -57,12 +61,12 @@ class PredictFraud(object):
 
 if __name__ == '__main__':
     example_path = './data/test_script_example.json'
-
+    url_path = 'http://galvanize-case-study-on-fraud.herokuapp.com/data_point'
     model_path = './data/model.pkl'
     # test = mdPred.read_entry()
     # RFmodel().prepare_data(test)
     mdPred = PredictFraud(
-        model_path, example_path)
+        model_path, example_path, url_path, data_source='local')
     df = mdPred.read_entry()
     X_prep = mdPred.fit()
     np.shape(X_prep)
