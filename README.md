@@ -1,18 +1,26 @@
 # Case Study Fraud Detection
 
-### Authors: Karey, Megano, Nick, Aymeric
+### Authors: Karey, Megan, Nick, Aymeric
 
 # Planned Scope
 Challenge: The company needs to flag potential new fraud for further review
 as it comes in so it can be triaged by most pressing (and costly) transactions.
 
-Given a JSON file with transactions that are fraud and not and feature columns,
-create a web based front-end to enable quick triage of potential new fraud.
+Given a JSON file with transactions that are fraud or not, and other features,
+create a web based front-end with machine learning back end to enable 
+quick triage of potential new fraud. 
+
+The web front end needs to be usable by a non-technical audience for triaging, 
+and flag each transaction as low, medium or high risk. 
+
+For this case study each team defined the scope of fraud. Our team defined events 
+as fraudulent if account type is labeled as: fraudster, fraudulent_event, 
+or fraudster_att. We chose not to classify spamm events as fraudulent.
 
 Web app features:
-Web app registers service at POST /register.
-Web app accepts input records on POST /score endpoint.
-Web app gives triage label: low, medium, high risk.
+Registers service at POST /register.
+Accepts input records on POST /score endpoint.
+Gives triage label: low, medium, high risk.
 
 Planned work:
 Day 1: EDA, plan approach, model.
@@ -81,7 +89,7 @@ This will give you a prediction of a json object respecting the following schema
 ['fraud', 'eur', 'gbp', 'ach', 'check', 'missing_payment', 'dict_elements', 'gts',
 'has_logo', 'user_type', 'delivery_method', 'org_facebook', 'org_twitter', 'has_analytics']
 
-The data is 14,337 events from 2007-2013, of which 1,239 are fraudulent.  (We define events as fraudulent if the account type is labeled as fraudster, fraudulent_event, or fraudster_att.  We don’t classify spamming events as fraudulent.)
+The data is 14,337 events from 2007-2013, of which 1,239 are fraudulent.  
 
 ## Overall model scores:
 F1 score: 0.87, Precision: 0.96, Recall: 0.79, Accuracy: 0.98
