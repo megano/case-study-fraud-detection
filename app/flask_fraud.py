@@ -1,3 +1,7 @@
+import sys
+sys.path.insert(0, '../model')
+sys.path.insert(0, '../source')
+
 from flask import Flask, request
 from sqlalchemy import create_engine
 import psycopg2
@@ -114,9 +118,9 @@ def make_prediction(df, X_prep):
 def index():
     if request.method == "POST":
         json_dict = request.get_json()
-        description = json_dict['description']
+        event_start = json_dict['event_start']
         # json.load(open(example_path))['description']
-        data = {'description': description}
+        data = {'event_start': event_start}
         return "from json: " + str(data)
     else:
         # response = urllib2.urlopen(
@@ -129,4 +133,14 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    # AWS
+    # app.run(host='0.0.0.0', debug=True)
+    # local server
+    port = 8000
+
+    # Open a web browser pointing at the app.
+    # os.system('open http://localhost:{0}'.format(port))
+
+    # Set up the development server on port 8000.
+    app.debug = True
+    app.run(port=port)
